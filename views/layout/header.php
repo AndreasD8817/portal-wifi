@@ -24,8 +24,47 @@
         .form-control { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: white; }
         .form-control:focus { background: rgba(255,255,255,0.15); border-color: var(--accent-color); color: white; box-shadow: 0 0 10px rgba(56,189,248,0.3); }
         .btn-custom { background: linear-gradient(90deg, #0284c7, #38bdf8); border: none; color: white; padding: 12px; border-radius: 50px; width: 100%; }
-        .table-glass { color: white; vertical-align: middle; margin-top: 20px; }
-        .table-glass td, .table-glass th { background: rgba(255,255,255,0.05); border-color: white; }
+        
+        /* --- STYLE TABEL (DIPERBARUI) --- */
+        .table-glass {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: white;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table-glass th, .table-glass td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            vertical-align: middle;
+        }
+        .table-glass th:last-child, .table-glass td:last-child { border-right: none; }
+        
+        .table-glass thead th {
+            background: rgba(0, 0, 0, 0.4); 
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+        
+        /* BARIS TABEL: Transparan Gelap (60% Opacity) */
+        .table-glass tbody tr {
+            background: rgba(0, 0, 0, 0.6); /* Lebih gelap agar tidak silau */
+            transition: all 0.2s ease-in-out;
+        }
+        
+        /* HOVER: Lebih gelap lagi saat disorot */
+        .table-glass tbody tr:hover {
+            background: rgba(0, 0, 0, 0.8); 
+        }
+        
         .input-group-text { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: white; border-left: none; cursor: pointer; }
         .pagination .page-link { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); color: white; }
         .pagination .page-item.active .page-link { background: #0ea5e9; border-color: #0ea5e9; }

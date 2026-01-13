@@ -124,27 +124,38 @@ if ($editMode) {
     <table class="table table-glass">
         <thead>
             <tr>
-                <th>Username</th>
-                <th>Perangkat</th>
-                <th>Password</th>
-                <th class="text-center" width="1%">Aksi</th>
+                <th class="text-center text-white">Username</th>
+                <th class="text-center text-white">Perangkat</th>
+                <th class="text-center text-white">Password</th>
+                <th class="text-center text-white" width="10%">Aksi</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach($devices as $idx => $d): ?>
-            <tr>
+            <tr class="text-center align-middle">
                 <td><?= htmlspecialchars($d['username']) ?></td>
                 <td><?= htmlspecialchars($d['device_name']) ?></td>
                 <td>
-                    <!-- Fitur Intip Password di Tabel -->
-                    <div class="d-flex align-items-center justify-content-between" style="min-width: 150px;">
-                        <span id="pass-txt-<?= $idx ?>" class="me-2">***</span>
-                        <button type="button" class="btn btn-sm btn-link text-white p-0" onclick="toggleTablePass('pass-txt-<?= $idx ?>', '<?= htmlspecialchars($d['password']) ?>', this)">
+                    <!-- 
+                        PERUBAHAN TATA LETAK PASSWORD:
+                        1. 'position-relative': Menjadikan div sebagai acuan posisi.
+                        2. 'justify-content-center': Membuat teks (span) benar-benar di tengah.
+                    -->
+                    <div class="d-flex align-items-center justify-content-center position-relative" style="min-width: 150px;">
+                        <!-- Teks Password di tengah -->
+                        <span id="pass-txt-<?= $idx ?>">***</span>
+                        
+                        <!-- 
+                             Tombol Mata Diposisikan Absolut (Mengambang) di Kanan 
+                             class 'position-absolute end-0 me-2' menempelkannya ke kanan.
+                        -->
+                        <button type="button" class="btn btn-sm btn-link text-warning p-0 position-absolute end-0 me-2" onclick="toggleTablePass('pass-txt-<?= $idx ?>', '<?= htmlspecialchars($d['password']) ?>', this)">
                             <i class="fas fa-eye"></i>
                         </button>
+                        
                     </div>
                 </td>
-                <td class="text-center">
+                <td>
                     <a href="/?edit_id=<?= $d['id'] ?>" class="btn btn-sm btn-info text-white rounded-circle" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
