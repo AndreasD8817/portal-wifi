@@ -1,0 +1,18 @@
+RewriteEngine On
+
+# Redirect index.php to /
+RewriteCond %{THE_REQUEST} /index\.php [NC]
+RewriteRule ^index\.php$ / [L,R=301]
+
+# 1. KEAMANAN: Blokir akses langsung ke folder sistem (config & views)
+# Jika ada yang mencoba buka http://localhost/portal-wifi/config/db.php, akan ditolak (403 Forbidden).
+RewriteRule ^(config|views) - [F,L]
+
+# 2. ROUTING: Arahkan semua permintaan ke index.php
+# Kecuali jika file atau foldernya benar-benar ada (seperti file di folder public/uploads)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Kirim semua URL sebagai parameter "page" ke index.php
+# Contoh: http://localhost/portal-wifi/admin -> index.php?page=admin
+RewriteRule ^(.*)$ index.php?page=$1 [L,QSA]
