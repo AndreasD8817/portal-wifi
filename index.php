@@ -1,11 +1,52 @@
 <?php
-// 1. Mulai Sesi (Wajib paling atas)
+// ==========================================
+// 1. KONFIGURASI SESI & AUTO LOGOUT
+// ==========================================
+
+// Atur agar Cookie Sesi mati saat browser ditutup (Parameter 0)
+// Wajib diletakkan SEBELUM session_start()
+session_set_cookie_params(0);
+
+// Mulai Sesi
 session_start();
 
-// 2. Panggil Koneksi Database
-require_once 'config/db.php';
+// --- LOGIKA TIMEOUT (Tidak Aktif) ---
+// Atur batas waktu diam (contoh: 30 menit = 1800 detik)
+$timeout_duration = 1800; 
 
-// --- FUNGSI BANTUAN ---
+// Cek apakah ada riwayat waktu aktivitas terakhir
+if (isset($_SESSION['last_activity'])) {
+    // Hitung berapa lama user diam (Waktu Sekarang - Waktu Terakhir Aktif)
+    $secondsInactive = time() - $_SESSION['last_activity'];
+    
+    // Jika diamnya lebih lama dari batas waktu
+    if ($secondsInactive > $timeout_duration) {
+        // Hapus semua data sesi
+        session_unset();
+        session_destroy();
+        
+        // Mulai sesi baru sebentar khusus untuk kirim pesan notifikasi
+        session_start();
+        $_SESSION['flash'] = [
+            'type' => 'warning', 
+            'title' => 'Sesi Berakhir', 
+            'text' => 'Anda telah logout otomatis karena tidak aktif selama 30 menit.'
+        ];
+        
+        // Lempar kembali ke halaman login
+        header("Location: /");
+        exit;
+    }
+}
+
+// Update waktu aktivitas terakhir ke DETIK INI setiap kali halaman dimuat
+$_SESSION['last_activity'] = time();
+
+
+// ==========================================
+// 2. KONEKSI & FUNGSI BANTUAN
+// ==========================================
+require_once 'config/db.php';
 
 // Ambil data user berdasarkan NIK
 function getUser($pdo, $nik) {
@@ -24,7 +65,7 @@ $page = $_GET['page'] ?? 'home';
 $act  = $_GET['act'] ?? '';
 
 // ==========================================
-// 1. LOGIKA LOGIN & PENGECEKAN PERANGKAT
+// 3. LOGIKA LOGIN & PENGECEKAN PERANGKAT
 // ==========================================
 if ($page === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $nik = trim($_POST['nik']); // Hapus spasi
@@ -33,6 +74,7 @@ if ($page === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user) {
         // Login Berhasil -> Simpan Sesi
         $_SESSION['user_nik'] = $user['nik'];
+        $_SESSION['last_activity'] = time(); // Set waktu awal login
         
         // --- CEK KELENGKAPAN PERANGKAT ---
         // Ambil nama perangkat milik user ini
@@ -73,7 +115,7 @@ if ($page === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ==========================================
-// 2. LOGIKA LOGOUT
+// 4. LOGIKA LOGOUT
 // ==========================================
 if ($page === 'logout') {
     session_destroy();
@@ -82,7 +124,7 @@ if ($page === 'logout') {
 }
 
 // ==========================================
-// 3. MIDDLEWARE (CEK STATUS LOGIN)
+// 5. MIDDLEWARE (CEK STATUS LOGIN)
 // ==========================================
 // Jika belum login, stop disini dan tampilkan halaman login
 if (!isset($_SESSION['user_nik'])) {
@@ -100,7 +142,7 @@ if (!isset($_SESSION['user_nik'])) {
 }
 
 // ==========================================
-// 4. PERSIAPAN DATA DASHBOARD
+// 6. PERSIAPAN DATA DASHBOARD
 // ==========================================
 $currentUser = getUser($pdo, $_SESSION['user_nik']);
 
@@ -110,7 +152,7 @@ $stmtDev->execute([$currentUser['nik']]);
 $devices = $stmtDev->fetchAll();
 
 // ==========================================
-// 5. PROSES SIMPAN DATA (TAMBAH/EDIT)
+// 7. PROSES SIMPAN DATA (TAMBAH/EDIT)
 // ==========================================
 if ($page === 'save_device' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? '';
@@ -151,7 +193,7 @@ if ($page === 'save_device' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ==========================================
-// 6. PROSES UPLOAD PENGAJUAN PDF
+// 8. PROSES UPLOAD PENGAJUAN PDF
 // ==========================================
 if ($page === 'upload_request' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['pdf_file']) && $_FILES['pdf_file']['error'] == 0) {
@@ -175,7 +217,7 @@ if ($page === 'upload_request' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ==========================================
-// 7. LOGIKA KHUSUS ADMIN
+// 9. LOGIKA KHUSUS ADMIN
 // ==========================================
 if ($currentUser['role'] === 'ADMIN') {
     // Kunci/Buka User Tertentu
@@ -207,7 +249,7 @@ if ($currentUser['role'] === 'ADMIN') {
 }
 
 // ==========================================
-// 8. TAMPILKAN HALAMAN UTAMA
+// 10. TAMPILKAN HALAMAN UTAMA
 // ==========================================
 require 'views/layout/header.php';
 
